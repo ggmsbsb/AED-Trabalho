@@ -4,9 +4,13 @@ from scipy import stats
 
 #Acessa o arquivo JSON e carrega os dados.
 def carregar_dados(caminho_arquivo):
-    with open(caminho_arquivo, "r") as arquivo:
-        dados = json.load(arquivo)
-    return [dia["valor"] for dia in dados["dias"]]
+    try:
+        with open(caminho_arquivo, "r") as arquivo:
+            dados = json.load(arquivo)
+        return [dia["valor"] for dia in dados["dias"]]
+    except FileNotFoundError:
+        print(f"Verificar se o caminho do arquivo está correto: {caminho_arquivo}")
+        return []
 
 #Calcula a média dos valores.
 def calcular_media(valores): #VERMELHO
@@ -41,9 +45,11 @@ def main():
 
     # Exibindo os valores ideais para compra e venda
     #Questão A - A
+    print("----------------------Questão A----------------------")
     print(f"Valor ideal para compra: R${valor_compra:.2f}")
     print(f"Valor ideal para venda: R${valor_venda:.2f}")
     #Questão A - B
+    print("----------------------Questão A----------------------")
     print(f"Lucro previsto: R${lucro_previsto:.2f}")
 
 
