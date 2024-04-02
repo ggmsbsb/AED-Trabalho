@@ -32,16 +32,20 @@ def main():
     desvio_padrao = calcular_desvio_padrao(valores) #AZUL
     intervalo_confianca = calcular_intervalo_confianca(media, desvio_padrao) #VERDE
 
-    # Valor ideal para compra
+    # Valor ideal para compra e venda
     valor_compra = intervalo_confianca[0] #Limite mais baixo do intervalo de confiança.
-
-    # Valor ideal para venda
     valor_venda = intervalo_confianca[1] #Limite mais alto do intervalo de confiança.
+
+    #Lucro previsto =  Valor ideal para venda−Valor ideal para compra
+    lucro_previsto = valor_venda - valor_compra
 
     # Exibindo os valores ideais para compra e venda
     #Questão A - A
     print(f"Valor ideal para compra: R${valor_compra:.2f}")
     print(f"Valor ideal para venda: R${valor_venda:.2f}")
+    #Questão A - B
+    print(f"Lucro previsto: R${lucro_previsto:.2f}")
+
 
 #Executa a função main
 if __name__ == "__main__":
