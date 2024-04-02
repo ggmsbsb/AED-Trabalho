@@ -41,13 +41,20 @@ def main():
     valor_venda = intervalo_confianca[1] #Limite mais alto do intervalo de confiança.
 
     #Lucro previsto =  Valor ideal para venda−Valor ideal para compra
-    lucro_previsto = valor_venda - valor_compra
+    lucro_pa = valor_venda - valor_compra
 
     #Dinheiro disponível
     dinheiro_total = 1000000
 
     #Calcular total de ações adquiridas
     num_acoes = dinheiro_total // valor_compra
+
+    #Valor total de compra e venda
+    custo = num_acoes * valor_compra
+    venda = num_acoes * valor_venda
+
+    #Calculo do lucro
+    lucro_tt = venda - custo
 
     # Exibindo os valores ideais para compra e venda
     #Questão A - A
@@ -57,7 +64,8 @@ def main():
     print(f"Total de ações adquiridas (aproximadamente): {num_acoes}")
     #Questão A - B
     print("----------------------Questão B----------------------")
-    print(f"Lucro previsto: R${lucro_previsto:.2f}")
+    print(f"Lucro previsto POR AÇÃO: R${lucro_pa:.2f}")
+    print(f"Lucro previsto TOTAL: R${lucro_tt:.2f}")
 
 #Executa a função main
 if __name__ == "__main__":
