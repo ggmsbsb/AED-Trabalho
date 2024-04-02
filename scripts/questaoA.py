@@ -43,15 +43,21 @@ def main():
     #Lucro previsto =  Valor ideal para venda−Valor ideal para compra
     lucro_previsto = valor_venda - valor_compra
 
+    #Dinheiro disponível
+    dinheiro_total = 1000000
+
+    #Calcular total de ações adquiridas
+    num_acoes = dinheiro_total // valor_compra
+
     # Exibindo os valores ideais para compra e venda
     #Questão A - A
     print("----------------------Questão A----------------------")
     print(f"Valor ideal para compra: R${valor_compra:.2f}")
     print(f"Valor ideal para venda: R${valor_venda:.2f}")
+    print(f"Total de ações adquiridas (aproximadamente): {num_acoes}")
     #Questão A - B
-    print("----------------------Questão A----------------------")
+    print("----------------------Questão B----------------------")
     print(f"Lucro previsto: R${lucro_previsto:.2f}")
-
 
 #Executa a função main
 if __name__ == "__main__":
