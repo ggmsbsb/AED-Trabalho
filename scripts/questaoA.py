@@ -1,13 +1,48 @@
 import json
+import numpy as np
+from scipy import stats
 
-#JSON PATH (Fica de olho pq isso --> VAI <-- mudar de acordo com o seu diretório)
-json_path = r"D:\CDMI\AEDTRAB\dados\acoes.json"
+#Acessa o arquivo JSON e carrega os dados.
+def carregar_dados(caminho_arquivo):
+    with open(caminho_arquivo, "r") as arquivo:
+        dados = json.load(arquivo)
+    return [dia["valor"] for dia in dados["dias"]]
 
-# Abrindo o arquivo JSON e carregando os dados
-with open(json_path, "r") as arquivo:
-    dados = json.load(arquivo)
+#Calcula a média dos valores.
+def calcular_media(valores): #VERMELHO
+    return np.mean(valores)
 
-dias = dados["dias"]
+#Calcula o desvio padrão dos valores.
+def calcular_desvio_padrao(valores): #AZUL
+    return np.std(valores, ddof=1)#ddof = grau de liberdade | std = Standard Deviation
 
-#Printando os dados só pra testar
-#print(dias)
+#Calcula o intervalo de confiança. Nível especificado no enunciado (95%).
+def calcular_intervalo_confianca(media, desvio_padrao, nivel_confianca=0.95):  #VERDE
+    return stats.norm.interval(nivel_confianca, loc=media, scale=desvio_padrao)
+
+def main():
+    # JSON PATH fica de olho pq isso --> VAI <-- mudar de acordo com o seu PC.
+    json_path = r"D:\CDMI\AEDTRAB\dados\acoes.json"
+
+    # Carregar os dados
+    valores = carregar_dados(json_path)
+
+    #Calculos(Só passar o mouse nas cores pra ver a função responsavel por cada uma.)
+    media = calcular_media(valores) #VERMELHO
+    desvio_padrao = calcular_desvio_padrao(valores) #AZUL
+    intervalo_confianca = calcular_intervalo_confianca(media, desvio_padrao) #VERDE
+
+    # Valor ideal para compra
+    valor_compra = intervalo_confianca[0] #Limite mais baixo do intervalo de confiança.
+
+    # Valor ideal para venda
+    valor_venda = intervalo_confianca[1] #Limite mais alto do intervalo de confiança.
+
+    # Exibindo os valores ideais para compra e venda
+    #Questão A - A
+    print(f"Valor ideal para compra: R${valor_compra:.2f}")
+    print(f"Valor ideal para venda: R${valor_venda:.2f}")
+
+#Executa a função main
+if __name__ == "__main__":
+    main()
