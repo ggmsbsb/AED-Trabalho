@@ -42,7 +42,7 @@ valor_venda = media + intervalo_confianca
 
 # Calculando quantidade de ações adquiridas com base no capital inicial
 # Quantidade de ações é calculada dividindo o capital inicial pelo valor de compra
-quantidade_acoes = int(np.floor(1000000 / valor_compra))  # R$ 1.000.000,00 como capital inicial
+quantidade_acoes = int(np.floor(1000000 / valor_compra))
 
 # Calculando lucro previsto com base nos valores de compra e venda
 lucro_previsto = quantidade_acoes * (valor_venda - valor_compra)
