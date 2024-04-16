@@ -21,7 +21,7 @@ df = pd.DataFrame(serie)
 df['valor'] = df['valor'].astype(float)
 
 # Calculando média móvel de 10 dias
-df['media_movel'] = df['valor'].rolling(window=10).mean()
+media_10d = df['valor'].mean()
 
 # Calculando média e desvio padrão da série histórica
 media = df['valor'].mean()
