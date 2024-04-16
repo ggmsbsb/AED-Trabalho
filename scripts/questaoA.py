@@ -36,7 +36,7 @@ valor_compra = media - intervalo_confianca
 valor_venda = media + intervalo_confianca
 
 # Quantidade de ações adquiridas (arredondada para o inteiro mais próximo)
-quantidade_acoes = int(np.floor(10000 / valor_compra))  # Considerando 10000 como capital inicial
+quantidade_acoes = int(np.floor(1000000 / valor_compra))  # Considerando R$ 1.000.000,00 como capital inicial
 
 # Lucro previsto
 lucro_previsto = quantidade_acoes * (valor_venda - valor_compra)
