@@ -1,72 +1,48 @@
-import json
 import numpy as np
-from scipy import stats
+import pandas as pd
+import scipy.stats as stats
 
-#Acessa o arquivo JSON e carrega os dados.
-def carregar_dados(caminho_arquivo):
-    try:
-        with open(caminho_arquivo, "r") as arquivo:
-            dados = json.load(arquivo)
-        return [dia["valor"] for dia in dados["dias"]]
-    except FileNotFoundError:
-        print(f"Verificar se o caminho do arquivo está correto: {caminho_arquivo}")
-        return []
+# Série histórica
+serie = [
+    {"dia": "1", "valor": 15.01},
+    {"dia": "2", "valor": 18.92},
+    {"dia": "3", "valor": 20.00},
+    {"dia": "4", "valor": 15.78},
+    {"dia": "5", "valor": 17.17},
+    {"dia": "6", "valor": 16.23},
+    {"dia": "7", "valor": 18.23},
+    {"dia": "8", "valor": 18.00},
+    {"dia": "9", "valor": 17.88},
+    {"dia": "10", "valor": 19.02}
+]
 
-#Calcula a média dos valores.
-def calcular_media(valores): #VERMELHO
-    return np.mean(valores)
+# Converter para DataFrame do pandas
+df = pd.DataFrame(serie)
+df['valor'] = df['valor'].astype(float)
 
-#Calcula o desvio padrão dos valores.
-def calcular_desvio_padrao(valores): #AZUL
-    return np.std(valores, ddof=1)#ddof = grau de liberdade | std = Standard Deviation
+# Calculando média móvel de 10 dias
+df['media_movel'] = df['valor'].rolling(window=10).mean()
 
-#Calcula o intervalo de confiança. Nível especificado no enunciado (95%).
-def calcular_intervalo_confianca(media, desvio_padrao, nivel_confianca=0.95):  #VERDE
-    return stats.norm.interval(nivel_confianca, loc=media, scale=desvio_padrao)
+# Calculando média e desvio padrão
+media = df['valor'].mean()
+desvio_padrao = df['valor'].std()
 
-def main():
-    # JSON PATH fica de olho pq isso --> VAI <-- mudar de acordo com o seu PC.
-    json_path = r"D:\CDMI\AEDTRAB\dados\acoes.json"
+# Calculando intervalo de confiança bilateral de 95%
+z_score = stats.norm.ppf(0.975)  # Z-score para 95% de confiança
+intervalo_confianca = z_score * (desvio_padrao / np.sqrt(10))
 
-    # Carregar os dados
-    valores = carregar_dados(json_path)
+# Valores extremos para compra e venda
+valor_compra = media - intervalo_confianca
+valor_venda = media + intervalo_confianca
 
-    #Calculos(Só passar o mouse nas cores pra ver a função responsavel por cada uma.)
-    media = calcular_media(valores) #VERMELHO
-    desvio_padrao = calcular_desvio_padrao(valores) #AZUL
-    intervalo_confianca = calcular_intervalo_confianca(media, desvio_padrao) #VERDE
+# Quantidade de ações adquiridas (arredondada para o inteiro mais próximo)
+quantidade_acoes = int(np.floor(10000 / valor_compra))  # Considerando 10000 como capital inicial
 
-    # Valor ideal para compra e venda
-    valor_compra = intervalo_confianca[0] #Limite mais baixo do intervalo de confiança.
-    valor_venda = intervalo_confianca[1] #Limite mais alto do intervalo de confiança.
+# Lucro previsto
+lucro_previsto = quantidade_acoes * (valor_venda - valor_compra)
 
-    #Lucro previsto =  Valor ideal para venda−Valor ideal para compra
-    lucro_pa = valor_venda - valor_compra
-
-    #Dinheiro disponível
-    dinheiro_total = 1000000
-
-    #Calcular total de ações adquiridas
-    num_acoes = dinheiro_total // valor_compra
-
-    #Valor total de compra e venda
-    custo = num_acoes * valor_compra
-    venda = num_acoes * valor_venda
-
-    #Calculo do lucro
-    lucro_tt = venda - custo
-
-    # Exibindo os valores ideais para compra e venda
-    #Questão A - A
-    print("----------------------Questão A----------------------")
-    print(f"Valor ideal para compra: R${valor_compra:.2f}")
-    print(f"Valor ideal para venda: R${valor_venda:.2f}")
-    print(f"Total de ações adquiridas (aproximadamente): {num_acoes}")
-    #Questão A - B
-    print("----------------------Questão B----------------------")
-    print(f"Lucro previsto POR AÇÃO: R${lucro_pa:.2f}")
-    print(f"Lucro previsto TOTAL: R${lucro_tt:.2f}")
-
-#Executa a função main
-if __name__ == "__main__":
-    main()
+# Exibindo resultados
+print(f"Valor ideal para compra: R${valor_compra:.2f}")
+print(f"Valor ideal para venda: R${valor_venda:.2f}")
+print(f"Quantidade de ações adquiridas: {quantidade_acoes}")
+print(f"Lucro obtido previsto: R${lucro_previsto:.2f}")
