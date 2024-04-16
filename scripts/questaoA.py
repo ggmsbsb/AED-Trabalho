@@ -1,68 +1,48 @@
-import json
 import numpy as np
-from scipy import stats
+import pandas as pd
+import scipy.stats as stats
 
-# Acessa o arquivo JSON e carrega os dados.
-def carregar_dados(caminho_arquivo):
-    try:
-        with open(caminho_arquivo, "r") as arquivo:
-            dados = json.load(arquivo)
-        return [dia["valor"] for dia in dados["dias"]]
-    except FileNotFoundError:
-        print(f"Por favor, verifique se o caminho do arquivo está correto: {caminho_arquivo}")
-        return []
+# Série histórica
+serie = [
+    {"dia": "1", "valor": 15.01},
+    {"dia": "2", "valor": 18.92},
+    {"dia": "3", "valor": 20.00},
+    {"dia": "4", "valor": 15.78},
+    {"dia": "5", "valor": 17.17},
+    {"dia": "6", "valor": 16.23},
+    {"dia": "7", "valor": 18.23},
+    {"dia": "8", "valor": 18.00},
+    {"dia": "9", "valor": 17.88},
+    {"dia": "10", "valor": 19.02}
+]
 
-# Calcula a média móvel dos últimos N dias
-def calcular_media_movel(valores, N):
-    return np.convolve(valores, np.ones(N)/N, mode='valid')
+# Converter para DataFrame do pandas
+df = pd.DataFrame(serie)
+df['valor'] = df['valor'].astype(float)
 
-# Calcula o desvio padrão dos últimos N dias
-def calcular_desvio_padrao(valores, N):
-    return [np.std(valores[i-N:i], ddof=1) for i in range(N, len(valores)+1)]
+# Calculando média móvel de 10 dias
+df['media_movel'] = df['valor'].rolling(window=10).mean()
 
-def main():
-    # Caminho do JSON
-    caminho_json = r"D:\CDMI\AEDTRAB\dados\acoes.json"
+# Calculando média e desvio padrão
+media = df['valor'].mean()
+desvio_padrao = df['valor'].std()
 
-    # Carrega os dados
-    valores = carregar_dados(caminho_json)
+# Calculando intervalo de confiança bilateral de 95%
+z_score = stats.norm.ppf(0.975)  # Z-score para 95% de confiança
+intervalo_confianca = z_score * (desvio_padrao / np.sqrt(10))
 
-    # Número de dias a serem considerados para média móvel e desvio padrão móvel
-    N = 10
-    media_movel = calcular_media_movel(valores, N)
-    desvio_padrao_movel = calcular_desvio_padrao(valores, N)
+# Valores extremos para compra e venda
+valor_compra = media - intervalo_confianca
+valor_venda = media + intervalo_confianca
 
-    # Preços de compra e venda dinâmicos para cada dia
-    valor_compra = [media - desvio for media, desvio in zip(media_movel, desvio_padrao_movel)]
-    valor_venda = [media + desvio for media, desvio in zip(media_movel, desvio_padrao_movel)]
-    
-    # Inicializa o número de ações compradas e o lucro total
-    num_acoes = 0
-    lucro_total = 0.0
-    capital = 1000000  # Capital inicial
-    melhor_preco_compra = float('inf')  # Inicializa o melhor preço de compra como infinito
-    maior_preco_venda = 0  # Inicializa o maior preço de venda como 0
+# Quantidade de ações adquiridas (arredondada para o inteiro mais próximo)
+quantidade_acoes = int(np.floor(10000 / valor_compra))  # Considerando 10000 como capital inicial
 
-    # Percorre os preços para cada dia
-    for dia, preco in enumerate(valores):
-        if preco < melhor_preco_compra:
-            melhor_preco_compra = preco
-            if capital >= melhor_preco_compra:
-                num_acoes_compradas = capital // melhor_preco_compra
-                capital -= num_acoes_compradas * melhor_preco_compra
-                num_acoes += num_acoes_compradas
+# Lucro previsto
+lucro_previsto = quantidade_acoes * (valor_venda - valor_compra)
 
-        if preco > maior_preco_venda and num_acoes > 0:
-            maior_preco_venda = preco
-
-    # Calcula o lucro
-    lucro_total = num_acoes * (maior_preco_venda - melhor_preco_compra)
-    capital += num_acoes * maior_preco_venda
-
-    # Imprime os resultados
-    print(f"Melhor Preço de Compra = {melhor_preco_compra:.2f}, Maior Preço de Venda = {maior_preco_venda:.2f}, Número de Ações Compradas = {num_acoes}, Lucro Esperado = {lucro_total:.2f}")
-
-    num_acoes = 0  # Reseta o número de ações compradas
-
-if __name__ == "__main__":
-    main()
+# Exibindo resultados
+print(f"Valor ideal para compra: R${valor_compra:.2f}")
+print(f"Valor ideal para venda: R${valor_venda:.2f}")
+print(f"Quantidade de ações adquiridas: {quantidade_acoes}")
+print(f"Lucro obtido previsto: R${lucro_previsto:.2f}")
