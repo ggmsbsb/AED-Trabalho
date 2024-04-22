@@ -10,7 +10,7 @@ n = 10  # tamanho da amostra
 Z = norm.ppf(0.95)
 
 # Cálculo do intervalo de confiança
-intervalo_confianca = Z * (desvio_padrao_amostral / math.sqrt(n - 1))
+intervalo_confianca = Z * desvio_padrao_amostral / math.sqrt(n - 1)
 limite_inferior = media_amostral - intervalo_confianca
 limite_superior = media_amostral + intervalo_confianca
 
