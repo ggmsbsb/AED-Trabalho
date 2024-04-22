@@ -1,64 +1,70 @@
 import numpy as np
-import pandas as pd
-import scipy.stats as stats
+import matplotlib.pyplot as plt
+from sklearn.linear_model import LinearRegression
 
-# Dados de produção das commodities agrícolas
-dados_producao_agricola = {
-    'Ano': [2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023],
-    'Producao_Milho': [330.4, 375.7, 196.3, 180.6, 223.1, 225.2, 243, 219.5, 203.5, 154.1, 153.2],
-    'Producao_Soja': [186.7, 216, 147.32, 231, 246.68, 259.55, 241.6, 290.6, 292, 313.2, 318.5],
-    'Producao_Algodao': [2015, 2357, 2319, 1577, 2576, 2835, 2700, 2853, 2851, 2537, 2883]
-}
+# Dados fornecidos
+anos = np.array([2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023])
+milho = np.array([330.4, 375.7, 196.3, 180.6, 223.1, 225.2, 243, 219.5, 203.5, 154.1, 153.2])
+soja = np.array([186.7, 216, 147.32, 231, 246.68, 259.55, 241.6, 290.6, 292, 313.2, 318.5])
+algodao = np.array([2015, 2357, 2319, 1577, 2576, 2835, 2700, 2853, 2851, 2537, 2883])
 
-df_producao_agricola = pd.DataFrame(dados_producao_agricola)
+# Reshape dos dados para o formato aceito pelo scikit-learn
+anos = anos.reshape(-1, 1)
 
-# Calculando a média móvel para suavizar os dados de produção
-df_producao_agricola['Media_Movel_Milho'] = df_producao_agricola['Producao_Milho'].rolling(window=3).mean()
-df_producao_agricola['Media_Movel_Soja'] = df_producao_agricola['Producao_Soja'].rolling(window=3).mean()
-df_producao_agricola['Media_Movel_Algodao'] = df_producao_agricola['Producao_Algodao'].rolling(window=3).mean()
+# Modelo de regressão linear para milho
+modelo_milho = LinearRegression()
+modelo_milho.fit(anos, milho)
+previsao_milho = modelo_milho.predict([[2024]])
 
-# Função para calcular os coeficientes de regressão linear
-def calcular_coeficientes_regressao(x, y):
-    n = len(x)
-    soma_x = np.sum(x)
-    soma_y = np.sum(y)
-    soma_xy = np.sum(x * y)
-    soma_x2 = np.sum(x**2)
-    
-    # Coeficientes da regressão linear
-    A = (n * soma_xy - soma_x * soma_y) / (n * soma_x2 - soma_x**2)
-    B = (soma_y - A * soma_x) / n
-    
-    return B, A
+# Modelo de regressão linear para soja
+modelo_soja = LinearRegression()
+modelo_soja.fit(anos, soja)
+previsao_soja = modelo_soja.predict([[2024]])
 
-# Calculando os coeficientes de regressão para cada commodity
-B_milho, A_milho = calcular_coeficientes_regressao(df_producao_agricola['Ano'], df_producao_agricola['Media_Movel_Milho'])
-B_soja, A_soja = calcular_coeficientes_regressao(df_producao_agricola['Ano'], df_producao_agricola['Media_Movel_Soja'])
-B_algodao, A_algodao = calcular_coeficientes_regressao(df_producao_agricola['Ano'], df_producao_agricola['Media_Movel_Algodao'])
+# Modelo de regressão linear para algodão
+modelo_algodao = LinearRegression()
+modelo_algodao.fit(anos, algodao)
+previsao_algodao = modelo_algodao.predict([[2024]])
 
-# Previsão de produção para o ano de 2024
-ano_previsao = 2024
-previsao_producao_milho = B_milho + A_milho * ano_previsao
-previsao_producao_soja = B_soja + A_soja * ano_previsao
-previsao_producao_algodao = B_algodao + A_algodao * ano_previsao
+# Média amostral e desvio padrão amostral para cada cultura
+media_milho = np.mean(milho)
+media_soja = np.mean(soja)
+media_algodao = np.mean(algodao)
 
-# Imprimindo as previsões de produção para 2024
-print(f'Previsão de produção de Milho para 2024: {previsao_producao_milho:.2f} milhares de toneladas')
-print(f'Previsão de produção de Soja para 2024: {previsao_producao_soja:.2f} milhares de toneladas')
-print(f'Previsão de produção de Algodão para 2024: {previsao_producao_algodao:.2f} milhares de toneladas')
+std_milho = np.std(milho, ddof=1)
+std_soja = np.std(soja, ddof=1)
+std_algodao = np.std(algodao, ddof=1)
 
-# Calculando o intervalo de confiança de 99% usando Z-score
-z_score = stats.norm.ppf(0.99)  # 99% de confiança (2,5% em cada cauda)
-desvio_padrao_milho = df_producao_agricola['Media_Movel_Milho'].std()
-desvio_padrao_soja = df_producao_agricola['Media_Movel_Soja'].std()
-desvio_padrao_algodao = df_producao_agricola['Media_Movel_Algodao'].std()
+# Tamanho da amostra
+N = len(anos)
 
-# Calculando o intervalo de confiança para cada commodity
-intervalo_confianca_milho = z_score * (desvio_padrao_milho / np.sqrt(len(df_producao_agricola)))
-intervalo_confianca_soja = z_score * (desvio_padrao_soja / np.sqrt(len(df_producao_agricola)))
-intervalo_confianca_algodao = z_score * (desvio_padrao_algodao / np.sqrt(len(df_producao_agricola)))
+# Valor de z para um intervalo de confiança de 99%
+z = 2.576  # Para um intervalo de confiança de 99%
 
-# Imprimindo os intervalos de confiança para as previsões
-print(f'Intervalo de confiança para Milho: [{previsao_producao_milho - intervalo_confianca_milho:.2f}, {previsao_producao_milho + intervalo_confianca_milho:.2f}] milhares de toneladas')
-print(f'Intervalo de confiança para Soja: [{previsao_producao_soja - intervalo_confianca_soja:.2f}, {previsao_producao_soja + intervalo_confianca_soja:.2f}] milhares de toneladas')
-print(f'Intervalo de confiança para Algodão: [{previsao_producao_algodao - intervalo_confianca_algodao:.2f}, {previsao_producao_algodao + intervalo_confianca_algodao:.2f}] milhares de toneladas')
+# Calculando o valor de z usando a fórmula
+# Formula dada na aula do dia 17. O valor de Z é dado pela diferença da média amostral e a média populacional dividido pela divisão do desvio padrão amostral pela raiz quadrada do tamanho da amostra.
+z_milho = (media_milho - media_milho) / (std_milho / np.sqrt(N)) 
+z_soja = (media_soja - media_soja) / (std_soja / np.sqrt(N))
+z_algodao = (media_algodao - media_algodao) / (std_algodao / np.sqrt(N))
+
+# Calculando o intervalo de confiança
+intervalo_milho = z * (std_milho / np.sqrt(N))
+intervalo_soja = z * (std_soja / np.sqrt(N))
+intervalo_algodao = z * (std_algodao / np.sqrt(N))
+
+# Imprimir previsões, limites superiores e limites inferiores
+print(f"Previsão para a produção de milho em 2024: {previsao_milho[0]:.2f} mil toneladas")
+print(f"Limite Inferior para milho: {previsao_milho[0]-intervalo_milho:.2f} mil toneladas")
+print(f"Limite Superior para milho: {previsao_milho[0]+intervalo_milho:.2f} mil toneladas")
+
+print("------------------------------------------------------------------------------------")
+
+print(f"Previsão para a produção de soja em 2024: {previsao_soja[0]:.2f} mil toneladas")
+print(f"Limite Inferior para soja: {previsao_soja[0]-intervalo_soja:.2f} mil toneladas")
+print(f"Limite Superior para soja: {previsao_soja[0]+intervalo_soja:.2f} mil toneladas")
+
+print("------------------------------------------------------------------------------------")
+
+print(f"Previsão para a produção de algodão em 2024: {previsao_algodao[0]:.2f} mil toneladas")
+print(f"Limite Inferior para algodão: {previsao_algodao[0]-intervalo_algodao:.2f} mil toneladas")
+print(f"Limite Superior para algodão: {previsao_algodao[0]+intervalo_algodao:.2f} mil toneladas")
