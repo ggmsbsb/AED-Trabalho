@@ -1,36 +1,32 @@
 import numpy as np
-from scipy.stats import ttest_ind, t
+from scipy.stats import pearsonr, t
 
 # Dados fornecidos na tabela
 meses = ['Jan', 'Fev', 'Mar', 'Abr', 'Mai', 'Jun', 'Jul', 'Ago', 'Set', 'Out', 'Nov', 'Dez']
-selic = [0.73, 0.76, 0.93, 0.83, 1.03, 1.02, 1.03, 1.17, 1.07, 1.02, 1.02, 1.12]
-ipca = [0.54, 1.01, 1.62, 1.06, 0.47, 0.67, -0.68, -0.36, -0.29, 0.59, 0.41, 0.62]
+taxa_selic = [0.73, 0.76, 0.93, 0.83, 1.03, 1.02, 1.03, 1.17, 1.07, 1.02, 1.02, 1.12]
+taxa_ipca =  [0.54, 1.01, 1.62, 1.06, 0.47, 0.67, -0.68, -0.36, -0.29, 0.59, 0.41, 0.62]
 
-def teste_hipotese(nivel_de_significancia):
-    # Calcula a estatística de teste (por exemplo, t-teste)
-    estatistica_de_teste, valor_p = ttest_ind(selic, ipca)
+# Calcula o coeficiente de correlação e o p-valor entre a taxa SELIC e o IPCA
+coeficiente_correlacao, p_valor = pearsonr(taxa_selic, taxa_ipca)
 
-    # Calcula o nível de confiança
-    confianca = 1 - nivel_de_significancia
+# Define o nível de significância
+significancia = float(input("Digite o nível de significância (0-1): "))
 
-    # Calcula o valor crítico
-    df = len(selic) + len(ipca) - 2  # graus de liberdade
-    valor_critico = t.ppf(1 - nivel_de_significancia / 2, df)
+# Calcula o valor crítico usando o nível de significância e o tamanho da amostra
+graus_de_liberdade = len(taxa_selic) - 2
+valor_critico = t.ppf(1 - significancia/2, graus_de_liberdade)
 
-    # Decide se aceita ou rejeita a hipótese
-    if abs(estatistica_de_teste) > valor_critico:
-        resultado = "rejeitada"
-    else:
-        resultado = "aceita"
+# Calcula o valor da estatística de teste
+estatistica_teste = coeficiente_correlacao * np.sqrt((len(taxa_selic)-2) / (1 - coeficiente_correlacao**2))
 
-    # Imprime os resultados
-    print(f"O valor da estatística de teste é igual a {estatistica_de_teste}")
-    print(f"A confiança do teste é igual a {confianca}")
-    print(f"O valor crítico da distribuição associada é igual a {valor_critico}")
-    print(f"A hipótese/afirmação dada deve ser {resultado}")
+# Imprime os resultados
+print(f"O valor da estatística de teste é igual a {estatistica_teste:.2f}")
+print(f"A confiança do teste é igual a {1 - significancia:.2f}")
+print(f"O valor crítico da distribuição associada é igual a {valor_critico:.2f}")
 
-# Chama a função com um nível de significância fornecido pelo usuário
-nivel_de_significancia = float(input("Insira o nível de significância: "))
-teste_hipotese(nivel_de_significancia)
+# Teste de hipótese
+if np.abs(estatistica_teste) > valor_critico:
+    print("A hipótese/afirmação dada deve ser rejeitada.")
+else:
+    print("A hipótese/afirmação dada pode ser aceita.")
 
-# NÃO ENTENDI A MATÉRIA DIREITO, ENTÃO NÃO SEI SE ESTÁ CERTO
