@@ -13,20 +13,22 @@ coeficiente_correlacao, p_valor = pearsonr(taxa_selic, taxa_ipca)
 significancia = float(input("Digite o nível de significância (0-1): "))
 
 # Calcula o valor crítico usando o nível de significância e o tamanho da amostra
-graus_de_liberdade = len(taxa_selic) - 2
-valor_critico = t.ppf(1 - significancia/2, graus_de_liberdade)
+n = len(taxa_selic)
+valor_critico = t.ppf(1 - significancia/2, n - 2)
 
-# Calcula o valor da estatística de teste
-estatistica_teste = coeficiente_correlacao * np.sqrt((len(taxa_selic)-2) / (1 - coeficiente_correlacao**2))
+# Calcula o valor da estatística de teste utilizando a fórmula 1
+media_taxa_selic = np.mean(taxa_selic)
+media_taxa_ipca = np.mean(taxa_ipca)
+desvio_padrao_taxa_selic = np.std(taxa_selic, ddof=1)  # Usamos ddof=1 para calcular o desvio padrão amostral
+teste_t = (media_taxa_selic - media_taxa_ipca) / (desvio_padrao_taxa_selic / np.sqrt(n))
 
 # Imprime os resultados
-print(f"O valor da estatística de teste é igual a {estatistica_teste:.2f}")
+print(f"O valor da estatística de teste é igual a {teste_t:.2f}")
 print(f"A confiança do teste é igual a {1 - significancia:.2f}")
 print(f"O valor crítico da distribuição associada é igual a {valor_critico:.2f}")
 
 # Teste de hipótese
-if np.abs(estatistica_teste) > valor_critico:
+if np.abs(teste_t) > valor_critico:
     print("A hipótese/afirmação dada deve ser rejeitada.")
 else:
     print("A hipótese/afirmação dada pode ser aceita.")
-
