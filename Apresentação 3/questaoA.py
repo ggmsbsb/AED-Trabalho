@@ -16,7 +16,7 @@ significancia = float(input("Digite o nível de significância (0-1): "))
 n = len(taxa_selic)
 valor_critico = t.ppf(1 - significancia/2, n - 2)
 
-# Calcula o valor da estatística de teste utilizando a fórmula 1
+# Calcula o valor da estatística de teste utilizando a fórmula t = (X̄ - μ) / (s/√n). Dada na utlma aula.
 media_taxa_selic = np.mean(taxa_selic)
 media_taxa_ipca = np.mean(taxa_ipca)
 desvio_padrao_taxa_selic = np.std(taxa_selic, ddof=1)  # Usamos ddof=1 para calcular o desvio padrão amostral
@@ -32,3 +32,5 @@ if np.abs(teste_t) > valor_critico:
     print("A hipótese/afirmação dada deve ser rejeitada.")
 else:
     print("A hipótese/afirmação dada pode ser aceita.")
+
+
