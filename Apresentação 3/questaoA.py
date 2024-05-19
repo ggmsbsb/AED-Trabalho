@@ -1,6 +1,6 @@
 import numpy as np
 import pandas as pd
-from scipy import stats
+from scipy.stats import t
 
 # Definir os dados
 meses = ['Jan', 'Fev', 'Mar', 'Abr', 'Mai', 'Jun', 'Jul', 'Ago', 'Set', 'Out', 'Nov', 'Dez']
@@ -17,12 +17,20 @@ df['correlacao'] = df['taxa_selic'].rolling(window=3).corr(df['taxa_ipca'])
 alpha = float(input("Insira o nível de significância: "))
 
 # Realizar um teste t. A formula utilizada é t = (x̄ - μ) / (s / Raiz de n).
-t_stat, p_val = stats.ttest_1samp(df['correlacao'].dropna(), 0) #O teste T
+correlacao = df['correlacao'].dropna()
+x_bar = correlacao.mean()
+mu = 0
+s = correlacao.std()
+n = len(correlacao)
+t_stat = (x_bar - mu) / (s / np.sqrt(n))
+
+# Calculo do P-valor
+p_val = t.sf(np.abs(t_stat), n-1) * 2
 
 # Imprimir os resultados
 print(f"O valor da estatística de teste é igual a {t_stat}")
 print(f"A confiança do teste é igual a {1 - p_val}")
-print(f"O valor crítico da distribuição associada é igual a {stats.t.ppf(1 - alpha, df=df['correlacao'].dropna().count() - 1)}")
+print(f"O valor crítico da distribuição associada é igual a {t.ppf(1 - alpha, df=n - 1)}")
 if p_val < alpha:
     print("A hipótese/afirmação dada deve ser rejeitada")
 else:
