@@ -1,36 +1,29 @@
 import numpy as np
-from scipy.stats import pearsonr, t
+import pandas as pd
+from scipy import stats
 
-# Dados fornecidos na tabela
+# Definir os dados
 meses = ['Jan', 'Fev', 'Mar', 'Abr', 'Mai', 'Jun', 'Jul', 'Ago', 'Set', 'Out', 'Nov', 'Dez']
 taxa_selic = [0.73, 0.76, 0.93, 0.83, 1.03, 1.02, 1.03, 1.17, 1.07, 1.02, 1.02, 1.12]
 taxa_ipca =  [0.54, 1.01, 1.62, 1.06, 0.47, 0.67, -0.68, -0.36, -0.29, 0.59, 0.41, 0.62]
 
-# Calcula o coeficiente de correlação e o p-valor entre a taxa SELIC e o IPCA
-coeficiente_correlacao, p_valor = pearsonr(taxa_selic, taxa_ipca)
+# Criar um DataFrame
+df = pd.DataFrame({'meses': meses, 'taxa_selic': taxa_selic, 'taxa_ipca': taxa_ipca})
 
-# Define o nível de significância
-significancia = float(input("Digite o nível de significância (0-1): "))
+# Calcular a correlação móvel trimestral
+df['correlacao'] = df['taxa_selic'].rolling(window=3).corr(df['taxa_ipca'])
 
-# Calcula o valor crítico usando o nível de significância e o tamanho da amostra
-n = len(taxa_selic)
-valor_critico = t.ppf(1 - significancia/2, n - 2)
+# Solicitar ao usuário que insira o nível de significância
+alpha = float(input("Insira o nível de significância: "))
 
-# Calcula o valor da estatística de teste utilizando a fórmula t = (X̄ - μ) / (s/√n). Dada na utlma aula.
-media_taxa_selic = np.mean(taxa_selic)
-media_taxa_ipca = np.mean(taxa_ipca)
-desvio_padrao_taxa_selic = np.std(taxa_selic, ddof=1)  # Usamos ddof=1 para calcular o desvio padrão amostral
-teste_t = (media_taxa_selic - media_taxa_ipca) / (desvio_padrao_taxa_selic / np.sqrt(n))
+# Realizar um teste t. A formula utilizada é t = (x̄ - μ) / (s / Raiz de n).
+t_stat, p_val = stats.ttest_1samp(df['correlacao'].dropna(), 0) #O teste T
 
-# Imprime os resultados
-print(f"O valor da estatística de teste é igual a {teste_t:.2f}")
-print(f"A confiança do teste é igual a {1 - significancia:.2f}")
-print(f"O valor crítico da distribuição associada é igual a {valor_critico:.2f}")
-
-# Teste de hipótese
-if np.abs(teste_t) > valor_critico:
-    print("A hipótese/afirmação dada deve ser rejeitada.")
+# Imprimir os resultados
+print(f"O valor da estatística de teste é igual a {t_stat}")
+print(f"A confiança do teste é igual a {1 - p_val}")
+print(f"O valor crítico da distribuição associada é igual a {stats.t.ppf(1 - alpha, df=df['correlacao'].dropna().count() - 1)}")
+if p_val < alpha:
+    print("A hipótese/afirmação dada deve ser rejeitada")
 else:
-    print("A hipótese/afirmação dada pode ser aceita.")
-
-
+    print("A hipótese/afirmação dada deve ser aceita")
