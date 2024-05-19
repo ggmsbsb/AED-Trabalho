@@ -16,7 +16,7 @@ df['correlacao'] = df['taxa_selic'].rolling(window=3).corr(df['taxa_ipca'])
 # Solicitar ao usuário que insira o nível de significância
 alpha = float(input("Insira o nível de significância: "))
 
-# Realizar um teste t. A formula utilizada é t = (x̄ - μ) / (s / Raiz de n).
+# Realizar um teste t. A formula utilizada é t = (X_bar - Mu) / (s / Raiz de n).
 correlacao = df['correlacao'].dropna()
 x_bar = correlacao.mean()
 mu = 0
@@ -24,8 +24,8 @@ s = correlacao.std()
 n = len(correlacao)
 t_stat = (x_bar - mu) / (s / np.sqrt(n))
 
-# Calculo do P-valor
-p_val = t.sf(np.abs(t_stat), n-1) * 2
+# Calculo do P-valor 
+p_val = t.sf(np.abs(t_stat), n-1) * 2 
 
 # Imprimir os resultados
 print(f"O valor da estatística de teste é igual a {t_stat}")
