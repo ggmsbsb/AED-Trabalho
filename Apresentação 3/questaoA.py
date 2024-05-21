@@ -30,11 +30,7 @@ p_val = t.sf(np.abs(t_stat), n-1) * 2
 # Imprimir os resultados
 print(f"O valor da estatística de teste é igual a {t_stat}")
 print(f"A confiança do teste é igual a {(1 - alpha) * 100}%") #1 - p_val
-<<<<<<< HEAD
-print(f"O valor crítico da distribuição associada é igual a {stats.t.ppf(1 - alpha, df=df['correlacao'].dropna().count() - 1)}")
-=======
 print(f"O valor crítico da distribuição associada é igual a {t.ppf(1 - alpha, df=n - 1)}")
->>>>>>> fazendo
 if p_val < alpha:
     print("A hipótese/afirmação dada deve ser rejeitada")
 else:
