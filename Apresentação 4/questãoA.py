@@ -20,16 +20,34 @@ graus_de_liberdade = len(quantidades) - 1
 valor_critico = chi2.ppf(1 - nivel_significancia, graus_de_liberdade)
 
 # Saída dos resultados
-print(f"O valor da estatística de teste é igual a {estatistica_teste:.4f}")
-print(f"A confiança do teste é igual a {1 - nivel_significancia:.4f}")
-print(f"O valor crítico da distribuição associada é igual a {valor_critico:.4f}")
+print("\nFórmulas utilizadas:")
+print("1. Cálculo da estatística de teste qui-quadrado:")
+print("   estatística_teste = sum((O_i - E_i)^2 / E_i)")
+print("2. Cálculo do valor crítico da distribuição qui-quadrado:")
+print(f"   valor_crítico = chi2.ppf(1 - {nivel_significancia}, graus_de_liberdade)")
 
-# Decisão do teste
+# Tabela de Valores Observados e Esperados
+print("\nTabela de Valores Observados e Esperados:")
+print("| Marca | Quantidade Observada (O_i) | Quantidade Esperada (E_i) |")
+print("|-------|-----------------------------|---------------------------|")
+for i in range(len(marcas)):
+    print(f"|   {marcas[i]}   |        {quantidades[i]}        |             {esperado[i]:.2f}             |")
+print(f"\nSoma dos valores da tabela: {sum(quantidades)}")
+
+# Tabela de Valores Utilizados nos Cálculos
+print("\nValores Utilizados nos Cálculos:")
+print("| Variável                   | Valor  |")
+
+# Cálculo da estatística de teste qui-quadrado
+estatistica_teste = sum((O_i - E_i) ** 2 / E_i for O_i, E_i in zip(quantidades, esperado))
+print("| Estatística de teste qui-quadrado  | {:.4f} |".format(estatistica_teste))
+
+# Cálculo do valor crítico da distribuição qui-quadrado
+valor_critico = chi2.ppf(1 - nivel_significancia, graus_de_liberdade)
+print("| Valor crítico             | {:.4f} |".format(valor_critico))
+
+# Decisão sobre a hipótese nula
 if estatistica_teste > valor_critico:
-    print("A hipótese/afirmação dada deve ser rejeitada.")
+    print("\nRejeitar a hipótese nula: há diferença significativa entre as quantidades observadas e esperadas.")
 else:
-    print("A hipótese/afirmação dada deve ser aceita.")
-
-#Prints de teste, pode ignorar isso aq
-#print(p_valor)
-#print(esperado)
+    print("\nAceitar a hipótese nula: não há diferença significativa entre as quantidades observadas e esperadas.")

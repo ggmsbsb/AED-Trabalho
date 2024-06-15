@@ -12,40 +12,42 @@ data = {
 # Criar DataFrame
 df = pd.DataFrame(data)
 
-# Definir variáveis independentes e dependentes
-X = df[['Ano']]
-y = df['Índice Gini']
+# Supondo que df['Ano'] e df['Índice Gini'] são listas de mesmo comprimento
+ano = df['Ano']
+indice_gini = df['Índice Gini']
 
-# Criar e ajustar o modelo de regressão linear
-model = LinearRegression()
-model.fit(X, y)
+# Calcular a média de 'Ano' e 'Índice Gini'
+media_ano = sum(ano) / len(ano)
+media_indice_gini = sum(indice_gini) / len(indice_gini)
 
-# Gerar a equação da linha de tendência
-coef = model.coef_[0]
-intercept = model.intercept_
-equacao_tendencia = f"Índice Gini = {coef:.6f} * Ano + {intercept:.6f}"
+# Calcular os valores necessários para o coeficiente angular e intercepto da reta de tendência linear
+numerador = sum((x - media_ano) * (y - media_indice_gini) for x, y in zip(ano, indice_gini))
+denominador = sum((x - media_ano) ** 2 for x in ano)
+
+# Calcular o coeficiente angular (m) e o intercepto (b) da reta de tendência linear
+m = numerador / denominador
+b = media_indice_gini - m * media_ano
+
+print("Fórmulas utilizadas para o coeficiente angular e intercepto da regressão linear: m = Σ[(xi - x_média) * (yi - y_média)] / Σ[(xi - x_média)^2], b = y_média - m * x_média")
 
 # Prever o índice Gini para 2025
-ano_previsto = pd.DataFrame({'Ano': [2025]})
-gini_previsto = model.predict(ano_previsto)[0]
+gini_previsto = m * 2025 + b
 
-# Calcular valores previstos e relativo cíclico
-df['Gini Previsto'] = model.predict(X)
-df['Relativo Cíclico (%)'] = 100 * df['Índice Gini'] / df['Gini Previsto']
+print("Fórmula utilizada para a previsão linear: y = m * x + b")
 
 # Determinar se o país terá acesso à assistência internacional
 assistencia_internacional = "terá acesso à assistência internacional" if gini_previsto > 0.6 else "NÃO terá acesso à assistência internacional"
 
 # Resultados
-print(f"A equação de tendência linear é: {equacao_tendencia}")
-print(df)
+print("\nDetalhes e Resultados:")
+print(f"A equação de tendência linear é: y = {m}x + {b}")
 print(f"O valor previsto para o ano de 2025 é igual a {gini_previsto:.6f}")
 print(f"O país {assistencia_internacional}")
 
-# Plotando os dados e a linha de tendência
+# Plotar os dados e a linha de tendência
 plt.figure(figsize=(10, 6))
-plt.scatter(df['Ano'], df['Índice Gini'], color='blue', label='Índice Gini Observado')
-plt.plot(df['Ano'], df['Gini Previsto'], color='red', label='Linha de Tendência Linear')
+plt.scatter(ano, indice_gini, color='blue', label='Índice Gini Observado')
+plt.plot(ano, [m * x + b for x in ano], color='red', label='Linha de Tendência Linear')
 plt.xlabel('Ano')
 plt.ylabel('Índice Gini')
 plt.title('Tendência do Índice Gini')

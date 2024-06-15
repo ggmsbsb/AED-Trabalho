@@ -1,6 +1,4 @@
 import numpy as np
-import pandas as pd
-import scipy.stats as stats
 
 # Série histórica dos valores do ativo financeiro
 serie = [
@@ -16,33 +14,33 @@ serie = [
     {"dia": "10", "valor": 19.02}
 ]
 
-# Converter a série histórica para um DataFrame do pandas
-df = pd.DataFrame(serie)
-df['valor'] = df['valor'].astype(float)
+# Extraindo os valores em uma lista
+valores = [dia['valor'] for dia in serie]
+
+# Calculando a soma dos valores
+soma_valores = sum(valores)
 
 # Calculando média móvel de 10 dias
-# A média móvel ajuda a suavizar as flutuações e identificar tendências
-media_10d = df['valor'].mean()
+media_10d = soma_valores / len(valores)
 
-# Calculando média e desvio padrão da série histórica
-# Média é o valor médio dos preços
-# Desvio padrão indica o quanto os valores desviam da média
-media = df['valor'].mean()
-desvio_padrao = df['valor'].std()
+# Calculando a média da série histórica
+media = soma_valores / len(valores)
+
+# Calculando o desvio padrão da série histórica
+soma_diferencas_quadradas = sum((x - media) ** 2 for x in valores)
+desvio_padrao = np.sqrt(soma_diferencas_quadradas / (len(valores) - 1))
 
 # Calculando intervalo de confiança bilateral de 95%
-# Z-score é calculado para 95% de confiança e usado para determinar o intervalo de confiança
-z_score = stats.norm.ppf(0.975)  # Z-score para 95% de confiança || Norm =  distribuição normal.
-intervalo_confianca = z_score * (desvio_padrao / np.sqrt(10))
+z_score = 1.96  # Valor de Z para 95% de confiança
+intervalo_confianca = z_score * (desvio_padrao / np.sqrt(len(valores)))
 
 # Determinando valores extremos para compra e venda de ações
-# Valores extremos são baseados na média e no intervalo de confiança
 valor_compra = media - intervalo_confianca
 valor_venda = media + intervalo_confianca
 
 # Calculando quantidade de ações adquiridas com base no capital inicial
-# Quantidade de ações é calculada dividindo o capital inicial pelo valor de compra
-quantidade_acoes = int(np.floor(1000000 / valor_compra))
+capital_inicial = 1000000
+quantidade_acoes = int(np.floor(capital_inicial / valor_compra))
 
 # Calculando lucro previsto com base nos valores de compra e venda
 lucro_previsto = quantidade_acoes * (valor_venda - valor_compra)
@@ -52,3 +50,19 @@ print(f"Valor ideal para compra: R${valor_compra:.2f}")
 print(f"Valor ideal para venda: R${valor_venda:.2f}")
 print(f"Quantidade de ações adquiridas: {quantidade_acoes}")
 print(f"Lucro obtido previsto: R${lucro_previsto:.2f}")
+
+# Exibindo todos os valores utilizados em forma de tabela
+print("\nValores Utilizados:")
+for i, valor in enumerate(valores, 1):
+    print(f"X{i}: {valor:.2f}", end=" | ")
+print(f"\n\nSoma dos valores (ΣX): {soma_valores}")
+print(f"Média dos valores (X̄): {media}")
+print(f"Soma das diferenças quadradas: {soma_diferencas_quadradas}")
+print(f"Desvio padrão (σ): {desvio_padrao}")
+print(f"Z-Score (95% confiança): {z_score}")
+print(f"Intervalo de confiança: {intervalo_confianca}")
+print(f"Valor de compra: {valor_compra}")
+print(f"Valor de venda: {valor_venda}")
+print(f"Capital inicial: {capital_inicial}")
+print(f"Quantidade de ações: {quantidade_acoes}")
+print(f"Lucro previsto: {lucro_previsto}")
